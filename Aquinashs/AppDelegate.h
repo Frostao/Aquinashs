@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "MySingletonCenter.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 

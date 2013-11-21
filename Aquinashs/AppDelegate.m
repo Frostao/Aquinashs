@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import <Parse/Parse.h>
 
 @implementation AppDelegate
 
@@ -17,10 +18,48 @@
         UISplitViewController *splitViewController = (UISplitViewController *)self.window.rootViewController;
         UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
         splitViewController.delegate = (id)navigationController.topViewController;
+       
+        
     }
+    [Parse setApplicationId:@"wIv2Ir3lU6Epp1Ok1k7imwA1E5nUKEOXvbuUtbqf"
+                  clientKey:@"LKPcnTeekdABcM5mnLWVgrRteoUWTCao07SpRh8L"];
+    [PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
+    [application registerForRemoteNotificationTypes:UIRemoteNotificationTypeBadge|
+     UIRemoteNotificationTypeAlert|
+     UIRemoteNotificationTypeSound];
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    MySingletonCenter *tmp=[MySingletonCenter sharedSingleton];
+    if ([defaults objectForKey:@"login"] == NULL||NO) {
+        [defaults setBool:NO forKey:@"login"];
+    }else{
+        tmp.username = [defaults objectForKey:@"username"];
+        tmp.password = [defaults objectForKey:@"password"];
+        tmp.userType = [defaults objectForKey:@"userType"];
+    }
+    
     return YES;
 }
-							
+
+- (void)application:(UIApplication *)application
+didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+    // Store the deviceToken in the current installation and save it to Parse.
+    PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+    [currentInstallation setDeviceTokenFromData:deviceToken];
+    [currentInstallation saveInBackground];
+}
+
+- (void)application:(UIApplication *)application
+didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    [PFPush handlePush:userInfo];
+}
+
+- (void)application:(UIApplication*)application didFailToRegisterForRemoteNotificationsWithError:(NSError*)error
+{
+	NSLog(@"Failed to get token, error: %@", error);
+}
+
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.

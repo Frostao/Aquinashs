@@ -8,9 +8,33 @@
 
 #import <UIKit/UIKit.h>
 
-@interface DetailViewController : UIViewController <UISplitViewControllerDelegate>
+#import "MySingletonCenter.h"
 
-@property (strong, nonatomic) id detailItem;
+@interface DetailViewController : UIViewController <UISplitViewControllerDelegate, UIWebViewDelegate>{
+    UIWebView *webview;
+    IBOutlet UIActivityIndicatorView *spinner;
+}
 
-@property (weak, nonatomic) IBOutlet UILabel *detailDescriptionLabel;
+
+
+
+@property (nonatomic,retain) IBOutlet UIWebView *webview;
+
+
+-(void)setupNotification;
+- (void)configureView;
+-(void)loadWebsite;
+-(void)showLoginView;
+-(BOOL)login;
+
+-(void)getclasslists;
+
+-(void)logout;
+
+-(void)showGrades;
+
+
+-(void)logintoRenweb;
+-(void)getStudentId;
+
 @end
