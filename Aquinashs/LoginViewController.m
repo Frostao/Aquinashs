@@ -47,9 +47,6 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didLogin:) name:@"loggedin" object:nil];
     
     
-    
-    
-    
 }
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
@@ -60,6 +57,7 @@
 
 -(void)didLogin:(NSNotification *) notification{
     if ([notification.name isEqualToString:@"loggedin"]) {
+        
         [spinner stopAnimating];
         [self dismissViewControllerAnimated:YES completion:NULL];
         PFInstallation *currentInstallation = [PFInstallation currentInstallation];
@@ -76,8 +74,9 @@
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     
     if ([defaults objectForKey:@"currentGrade"]==NULL){
-        
+    
         currentGrade=@"Freshman";
+        [defaults setObject:currentGrade forKey:@"currentGrade"];
     }else{
         currentGrade=[defaults objectForKey:@"currentGrade"];
     }

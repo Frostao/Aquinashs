@@ -18,6 +18,7 @@
     NSString *studentid;
     BOOL shouldShowGrade;
     NSString *resetEmail;
+    
 }
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
 
@@ -40,6 +41,7 @@
 
 - (void)viewDidLoad
 {
+    
     webview.hidden=YES;
     MySingletonCenter *tmp=[MySingletonCenter sharedSingleton];
     studentid = tmp.studentid;
@@ -52,13 +54,19 @@
     spinner.hidesWhenStopped=YES;
     
     self.navigationController.navigationBar.translucent=NO;
-    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-        if (self.login) {
-        
+    
+    if (self.login) {
+       
     }else{
-        [self showLoginView];
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            [self showLoginViewForIpad];
+        }
+        
+        
     }
-    }
+    
+    
+    
     
     [self setupNotification];
     [super viewDidLoad];
@@ -72,7 +80,16 @@
     
 }
 
-
+-(void)viewDidAppear:(BOOL)animated{
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+        
+        if (self.login) {
+            
+        }else{
+            [self showLoginViewForIphone];
+        }
+    }
+}
 
 
 -(void)webViewDidFinishLoad:(UIWebView *)webView{
@@ -134,6 +151,7 @@
     
     
     if ([[webView stringByEvaluatingJavaScriptFromString:@"document.title"] isEqualToString:@"Aquinas High School - School Information"]) {
+        
         NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
         [defaults setBool:YES forKey:@"login"];
         [defaults setObject:tmp.username forKey:@"username"];
@@ -159,10 +177,18 @@
     
     
     if ([[webView stringByEvaluatingJavaScriptFromString:@"document.getElementsByTagName('table')[0].getElementsByTagName('tr')[0].getElementsByTagName('font')[0].innerHTML"] isEqualToString:@"Grade Book Student Progress Report"]) {
-        webview.scalesPageToFit=NO;
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+            webview.scalesPageToFit=NO;
         [webView stringByEvaluatingJavaScriptFromString:@"document.body.style.zoom = 1.25;"];
         [spinner stopAnimating];
         webview.hidden=NO;
+        }
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+            webview.scalesPageToFit=NO;
+            webview.hidden=NO;
+            [spinner stopAnimating];
+        }
+        
         
     }
     
@@ -233,6 +259,7 @@
     studentid= [webview stringByEvaluatingJavaScriptFromString:@"document.getElementById('tab-me-student-list').getElementsByTagName('li')[0].getElementsByTagName('a')[0].href"];
     tmp.studentid= [studentid substringFromIndex: [studentid length] - 7];
     studentid=tmp.studentid;
+    
 }
 
 -(void)getclasslists{
@@ -265,7 +292,7 @@
 
 
 
--(void)showLoginView{
+-(void)showLoginViewForIpad{
     
     
     UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPad" bundle:nil];
@@ -275,7 +302,13 @@
     [self presentViewController:login  animated:YES completion:nil];
 }
 
-
+-(void)showLoginViewForIphone{
+    
+    UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Storyboard_iPhone" bundle:nil];
+    UIViewController *login= [storyboard instantiateViewControllerWithIdentifier:@"login"];
+    
+    [self presentViewController:login  animated:YES completion:nil];
+}
 
 
 -(void)setupNotification{

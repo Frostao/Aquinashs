@@ -24,7 +24,8 @@
 -(void)setupNotification;
 - (void)configureView;
 -(void)loadWebsite;
--(void)showLoginView;
+-(void)showLoginViewForIpad;
+-(void)showLoginViewForIphone;
 -(BOOL)login;
 
 -(void)getclasslists;

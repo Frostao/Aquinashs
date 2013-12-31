@@ -15,14 +15,7 @@
 
 @implementation SettingsViewController
 
-- (id)initWithStyle:(UITableViewStyle)style
-{
-    self = [super initWithStyle:style];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
+
 
 - (void)viewDidLoad
 {
@@ -41,7 +34,10 @@
     MySingletonCenter *tmp=[MySingletonCenter sharedSingleton];
     
     UITableViewCell *cell= [tableview cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] ];
+    
+    
     cell.detailTextLabel.text=tmp.studentid;
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -116,11 +112,20 @@
             tmp.classes=NULL;
             tmp.studentid=NULL;
             tmp.userType=@"PARENT";
-            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPad" bundle:nil];
+            if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+                UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPad" bundle:nil];
             UIViewController *login= [storyboard instantiateViewControllerWithIdentifier:@"login"];
             login.modalPresentationStyle=UIModalPresentationPageSheet;
             login.modalTransitionStyle=UIModalTransitionStyleCoverVertical;
             [self presentViewController:login  animated:YES completion:nil];
+            }
+            if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+                UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"Storyboard_iPhone" bundle:nil];
+                UIViewController *login= [storyboard instantiateViewControllerWithIdentifier:@"login"];
+                [self presentViewController:login  animated:YES completion:nil];
+                
+            }
+            
             [[NSNotificationCenter defaultCenter] postNotificationName:@"loggedout" object:nil];
             
         }

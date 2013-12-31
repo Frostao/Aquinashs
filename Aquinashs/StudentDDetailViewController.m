@@ -76,6 +76,9 @@
     long quarter = indexPath.row +1;
     NSDictionary *userInfo=[NSDictionary dictionaryWithObject:[NSString stringWithFormat:@"%ld",quarter] forKey:@"classQuarter"];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"classAndQuarterSelected" object:nil userInfo:userInfo];
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+    [self dismissViewControllerAnimated:YES completion:NULL];
+    }
     // Navigation logic may go here. Create and push another view controller.
     /*
      <#DetailViewController#> *detailViewController = [[<#DetailViewController#> alloc] initWithNibName:@"<#Nib name#>" bundle:nil];

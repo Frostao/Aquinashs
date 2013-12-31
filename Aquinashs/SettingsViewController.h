@@ -13,4 +13,7 @@
     IBOutlet UITableView *tableview;
 }
 
+
+
+@property (strong) IBOutlet UILabel *labelInCell;
 @end

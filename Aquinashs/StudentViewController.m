@@ -89,14 +89,23 @@
         default:
             break;
     }
+        if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+            [self dismissViewControllerAnimated:YES completion:NULL];
+        }
     }
     if (indexPath.section == 1) {
         switch (indexPath.row) {
             case 1:
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"homeworkSelected" object:nil ];
+                if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+                    [self dismissViewControllerAnimated:YES completion:NULL];
+                }
                 break;
             case 2:
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"lessonPlanSelected" object:nil ];
+                if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
+                    [self dismissViewControllerAnimated:YES completion:NULL];
+                }
             default:
                 break;
         }
