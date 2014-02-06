@@ -15,5 +15,5 @@
 
 
 
-@property (strong) IBOutlet UILabel *labelInCell;
+
 @end
