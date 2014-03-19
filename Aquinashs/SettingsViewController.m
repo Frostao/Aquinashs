@@ -21,7 +21,10 @@
 {
     
     [super viewDidLoad];
-    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([defaults boolForKey:@"ad"]) {
+        [adControl setOn:YES];
+    }
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
  
@@ -187,6 +190,16 @@
 }
 - (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
     [self dismissViewControllerAnimated:YES completion:NULL];
+    
+}
+-(IBAction)adControl:(id)sender{
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    if ([adControl isOn]) {
+        [defaults setBool:YES forKey:@"ad"];
+    }else{
+        [defaults setBool:NO forKey:@"ad"];
+    }
+    [[[UIAlertView alloc] initWithTitle:@"Succeed" message:@"Restart the app to see the change" delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil] show];
     
 }
 @end

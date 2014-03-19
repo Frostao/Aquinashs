@@ -7,12 +7,18 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import <iAd/iAd.h>
+#import <Parse/Parse.h>
 #import "MySingletonCenter.h"
+#import "GADBannerView.h"
+#import "GADBannerViewDelegate.h"
 
-@interface DetailViewController : UIViewController <UISplitViewControllerDelegate, UIWebViewDelegate>{
+@interface DetailViewController : UIViewController <UISplitViewControllerDelegate, UIWebViewDelegate,ADBannerViewDelegate,GADBannerViewDelegate>{
     UIWebView *webview;
+    GADBannerView *GADbanner;
     IBOutlet UIActivityIndicatorView *spinner;
+    IBOutlet UILabel *loadingLabel;
+    IBOutlet ADBannerView *adBanner;
 }
 
 

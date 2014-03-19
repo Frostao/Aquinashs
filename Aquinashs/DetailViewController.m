@@ -18,6 +18,8 @@
     NSString *studentid;
     BOOL shouldShowGrade;
     NSString *resetEmail;
+    BOOL rotateGrade;
+    BOOL ad;
     
 }
 @property (strong, nonatomic) UIPopoverController *masterPopoverController;
@@ -42,6 +44,60 @@
 - (void)viewDidLoad
 {
     
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+    GADbanner=[[GADBannerView alloc] initWithAdSize:kGADAdSizeFullBanner];
+    switch ([[UIApplication sharedApplication] statusBarOrientation]) {
+        case 1:
+            GADbanner.frame = CGRectMake(150,
+                                         900,
+                                         GADbanner.frame.size.width,
+                                         GADbanner.frame.size.height);
+            break;
+        case 2:
+            GADbanner.frame = CGRectMake(150,
+                                         900,
+                                         GADbanner.frame.size.width,
+                                         GADbanner.frame.size.height);
+            break;
+        case 3:
+            GADbanner.frame = CGRectMake(150,
+                                         644,
+                                         GADbanner.frame.size.width,
+                                         GADbanner.frame.size.height);
+            break;
+        case 4:
+            GADbanner.frame = CGRectMake(150,
+                                         644,
+                                         GADbanner.frame.size.width,
+                                         GADbanner.frame.size.height);
+            break;
+        default:
+            break;
+    }
+    }else{
+        GADbanner=[[GADBannerView alloc] initWithAdSize:kGADAdSizeBanner];
+        GADbanner.frame = CGRectMake(0, 518, GADbanner.frame.size.width, GADbanner.frame.size.height);
+    }
+    GADbanner.adUnitID=@"ca-app-pub-3839520621729354/9885156027";
+    GADbanner.rootViewController = self;
+    GADbanner.delegate=self;
+    [self.view addSubview:GADbanner];
+    GADRequest *request=[GADRequest request];
+    
+    [GADbanner loadRequest:request];
+    
+    GADbanner.hidden=YES;
+    
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    ad=[defaults boolForKey:@"ad"];
+    if (ad) {
+        adBanner.hidden=NO;
+        
+    }else{
+        adBanner.hidden=YES;
+        
+    }
     webview.hidden=YES;
     MySingletonCenter *tmp=[MySingletonCenter sharedSingleton];
     studentid = tmp.studentid;
@@ -52,7 +108,8 @@
     date = [NSString stringWithFormat:@"%@/%@/%@",month,day,year];
     
     spinner.hidesWhenStopped=YES;
-    
+    [spinner startAnimating];
+    loadingLabel.hidden=NO;
     self.navigationController.navigationBar.translucent=NO;
     
     if (self.login) {
@@ -158,6 +215,17 @@
         [defaults setObject:tmp.password forKey:@"password"];
         [defaults setObject:tmp.userType forKey:@"userType"];
         [[NSNotificationCenter defaultCenter] postNotificationName:@"loggedin" object:nil];
+        NSString *studentName = [webview stringByEvaluatingJavaScriptFromString:@"document.getElementsByTagName('div')[3].getElementsByTagName('section')[1].getElementsByTagName('h3')[0].innerHTML;"];
+        NSRange lastName = [studentName rangeOfString:@" " options:NSBackwardsSearch];
+        NSRange firstName = [studentName rangeOfString:@" " options:NSLiteralSearch];
+        
+        studentName =[NSString stringWithFormat:@"%@%@",[studentName substringToIndex:firstName.location], [studentName substringFromIndex:lastName.location+1]];
+        
+        
+        
+        PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+        [currentInstallation addUniqueObject:studentName forKey:@"channels"];
+        [currentInstallation saveInBackground];
         [webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://aq-ca.client.renweb.com/pw/student/grades.cfm" ]]];
         
         
@@ -169,7 +237,8 @@
         if (shouldShowGrade) {
             [webview stringByEvaluatingJavaScriptFromString:[NSString stringWithFormat:@"document.getElementById('gradebook_%@_%d_%d').submit();",tmp.studentid,classindex,classquarter]];
         }
-            
+        [spinner stopAnimating];
+        loadingLabel.hidden=YES;
         
         
     }
@@ -178,48 +247,108 @@
     
     if ([[webView stringByEvaluatingJavaScriptFromString:@"document.getElementsByTagName('table')[0].getElementsByTagName('tr')[0].getElementsByTagName('font')[0].innerHTML"] isEqualToString:@"Grade Book Student Progress Report"]) {
         if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
-            webview.scalesPageToFit=NO;
-        [webView stringByEvaluatingJavaScriptFromString:@"document.body.style.zoom = 1.25;"];
+            
+        webview.scalesPageToFit=NO;
+        switch ([[UIApplication sharedApplication] statusBarOrientation]) {
+                case 1:
+                    [webView stringByEvaluatingJavaScriptFromString:@"document.body.style.zoom = 1.25;"];
+                    break;
+                case 2:
+                    [webView stringByEvaluatingJavaScriptFromString:@"document.body.style.zoom = 1.25;"];
+                    break;
+                case 3:
+                    [webView stringByEvaluatingJavaScriptFromString:@"document.body.style.zoom = 1.15;"];
+                    break;
+                case 4:
+                    [webView stringByEvaluatingJavaScriptFromString:@"document.body.style.zoom = 1.15;"];
+                    break;
+                default:
+                    break;
+            }
+            
+        
         [spinner stopAnimating];
+        loadingLabel.hidden=YES;
         webview.hidden=NO;
         }
         if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPhone) {
             webview.scalesPageToFit=NO;
             webview.hidden=NO;
             [spinner stopAnimating];
+            loadingLabel.hidden=YES;
+            
+            
         }
-        
-        
+        adBanner.hidden=YES;
+        GADbanner.hidden=YES;
+        ad=NO;
+        rotateGrade=YES;
     }
     
     
     
         if([[webView stringByEvaluatingJavaScriptFromString:@"document.title"] isEqualToString:@"Aquinas High School - Homework"]){
+            rotateGrade=NO;
             [spinner stopAnimating];
             webview.hidden=NO;
+            loadingLabel.hidden=YES;
         
     }
     if([[webView stringByEvaluatingJavaScriptFromString:@"document.title"] isEqualToString:@"Aquinas High School - Lesson Plans"]){
+        rotateGrade=NO;
         [spinner stopAnimating];
         webview.hidden=NO;
+        loadingLabel.hidden=YES;
         
     }
     if([[webView stringByEvaluatingJavaScriptFromString:@"document.title"] isEqualToString:@"Aquinas High School - Attendance"]){
+        rotateGrade=NO;
         [spinner stopAnimating];
         webview.hidden=NO;
+        loadingLabel.hidden=YES;
     }
     if([[webView stringByEvaluatingJavaScriptFromString:@"document.title"] isEqualToString:@"Aquinas High School - Behavior"]){
+        rotateGrade=NO;
         [spinner stopAnimating];
         webview.hidden=NO;
+        loadingLabel.hidden=YES;
     }
     if([[webView stringByEvaluatingJavaScriptFromString:@"document.title"] isEqualToString:@"Aquinas High School - Calendar"]){
+        rotateGrade=NO;
         [spinner stopAnimating];
         webview.hidden=NO;
+        loadingLabel.hidden=YES;
         [webView stringByEvaluatingJavaScriptFromString:@"document.body.style.zoom = 1.3;"];
     }
     
     
         
+}
+
+
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration{
+    [super willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    if(UIInterfaceOrientationIsPortrait(toInterfaceOrientation)){
+        GADbanner.frame = CGRectMake(150,
+                                     900,
+                                     GADbanner.frame.size.width,
+                                     GADbanner.frame.size.height);
+        if (rotateGrade) {
+            [webview reload];
+           
+        }
+        
+        
+    }
+    else if(UIInterfaceOrientationIsLandscape(toInterfaceOrientation)){
+        GADbanner.frame = CGRectMake(150,
+                                     644,
+                                     GADbanner.frame.size.width,
+                                     GADbanner.frame.size.height);
+        if (rotateGrade) {
+            [webview reload];
+        }
+    }
 }
 
 
@@ -339,6 +468,7 @@
         NSString *month = [[[NSDate date] description] substringWithRange:NSMakeRange(5, 2)];
         NSString *day= [[[NSDate date] description] substringWithRange:NSMakeRange(8, 2)];
         [spinner startAnimating];
+        loadingLabel.hidden=NO;
         webview.hidden=YES;
         webview.scalesPageToFit=YES;
         [webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://aq-ca.client.renweb.com/pw/school/calendar-print.cfm?filter=ALL&studentid=&view=calendar&month=%@&year=%@&day=%@&range=month",month,year,day ]]]];
@@ -353,6 +483,7 @@
             [self.masterPopoverController dismissPopoverAnimated:YES];
         }
         [spinner startAnimating];
+        loadingLabel.hidden=NO;
         webview.hidden=YES;
         webview.scalesPageToFit=YES;
         [webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://aq-ca.client.renweb.com/pw/student/homework-print.cfm?studentid=%@&weekof=%@&events=0",studentid,date ]]]];
@@ -367,6 +498,7 @@
             [self.masterPopoverController dismissPopoverAnimated:YES];
         }
         [spinner startAnimating];
+        loadingLabel.hidden=NO;
         webview.hidden=YES;
         webview.scalesPageToFit=YES;
         [webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"https://aq-ca.client.renweb.com/pw/student/attendance.cfm"]]];
@@ -380,6 +512,7 @@
             [self.masterPopoverController dismissPopoverAnimated:YES];
         }
         [spinner startAnimating];
+        loadingLabel.hidden=NO;
         webview.hidden=YES;
         webview.scalesPageToFit=YES;
         [webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://aq-ca.client.renweb.com/pw/student/behavior.cfm"]]];
@@ -394,6 +527,7 @@
             [self.masterPopoverController dismissPopoverAnimated:YES];
         }
         [spinner startAnimating];
+        loadingLabel.hidden=NO;
         webview.hidden=YES;
         webview.scalesPageToFit=YES;
         [webview loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://aq-ca.client.renweb.com/pw/student/lesson-plans-print.cfm?studentid=%@&weekof=%@",studentid,date ]]]];
@@ -419,6 +553,7 @@
          classquarter = [[[notification userInfo] valueForKey:@"classQuarter"] intValue];
         [self showGrades];
         [spinner startAnimating];
+        loadingLabel.hidden=NO;
         if (self.masterPopoverController != nil) {
             [self.masterPopoverController dismissPopoverAnimated:YES];
         }
@@ -483,5 +618,25 @@
     [self.navigationItem setLeftBarButtonItem:nil animated:YES];
     self.masterPopoverController = nil;
 }
+
+
+- (void)bannerView:(ADBannerView *)banner didFailToReceiveAdWithError:(NSError *)error
+{
+    NSLog(@"didFailToReceiveAdWithError %@", error);
+    adBanner.hidden=YES;
+    
+    
+    if (ad) {
+        
+        GADbanner.hidden=NO;
+    }
+    
+    
+}
+- (void)adView:(GADBannerView *)bannerView
+didFailToReceiveAdWithError:(GADRequestError *)error;{
+    GADbanner.hidden=YES;
+}
+
 
 @end

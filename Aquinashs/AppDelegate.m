@@ -7,18 +7,26 @@
 //
 
 #import "AppDelegate.h"
-#import <Parse/Parse.h>
+
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    MySingletonCenter *tmp=[MySingletonCenter sharedSingleton];
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+        BOOL teacher = [defaults boolForKey:@"teacher"];
+        if (teacher) {
+            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard_iPad" bundle:nil];
+            UIViewController *notificationManager= [storyboard instantiateViewControllerWithIdentifier:@"notificationManager"];
+            self.window.rootViewController = notificationManager;
+        }else{
         UISplitViewController *splitViewController = (UISplitViewController *)self.window.rootViewController;
         UINavigationController *navigationController = [splitViewController.viewControllers lastObject];
         splitViewController.delegate = (id)navigationController.topViewController;
-       
+        }
         
     }
     [Parse setApplicationId:@"wIv2Ir3lU6Epp1Ok1k7imwA1E5nUKEOXvbuUtbqf"
@@ -28,9 +36,7 @@
      UIRemoteNotificationTypeAlert|
      UIRemoteNotificationTypeSound];
     
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    MySingletonCenter *tmp=[MySingletonCenter sharedSingleton];
-    if ([defaults objectForKey:@"login"] == NULL||NO) {
+        if ([defaults objectForKey:@"login"] == NULL||NO) {
         [defaults setBool:NO forKey:@"login"];
     }else{
         tmp.username = [defaults objectForKey:@"username"];

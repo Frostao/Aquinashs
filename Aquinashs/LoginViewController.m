@@ -128,6 +128,8 @@
         NSString *password =[alertView textFieldAtIndex:1].text;
         if ([username isEqualToString:@"aquinas"]) {
             if ([password isEqualToString:@"aquinasteacher"]) {
+                NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                [defaults setBool:YES forKey:@"teacher"];
                 PFInstallation *currentInstallation = [PFInstallation currentInstallation];
                 [currentInstallation addUniqueObject:@"teachers" forKey:@"channels"];
                 [currentInstallation saveInBackground];

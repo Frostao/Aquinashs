@@ -11,9 +11,10 @@
 #import <messageui/MFMailComposeViewController.h>
 @interface SettingsViewController : UITableViewController<MFMailComposeViewControllerDelegate>{
     IBOutlet UITableView *tableview;
+    IBOutlet UISwitch *adControl;
 }
 
-
+-(IBAction)adControl:(id)sender;
 
 
 @end
